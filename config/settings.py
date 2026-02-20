@@ -3,6 +3,16 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file
+_env_path = BASE_DIR / '.env'
+if _env_path.exists():
+    with open(_env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ.setdefault(key.strip(), val.strip())
+
 SECRET_KEY = 'dev-prototype-key-not-for-production'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
