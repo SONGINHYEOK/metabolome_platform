@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- TODO: Claude Code에서 DEVELOPMENT_GUIDE.md 섹션 6-2 참고하여 구현 -->
+<header class="bg-navy text-white h-16 flex items-center px-6 justify-between">
+    <div class="flex items-center gap-4">
+        <h1 class="text-xl font-bold">RESEARCH PORTAL</h1>
+        <span class="text-sm text-gray-300">연구자용 서비스</span>
+    </div>
+    <span class="border border-blue-400 text-blue-400 px-3 py-1 rounded text-sm">2-TRACK: RESEARCH</span>
+</header>
+<div class="p-8">
+    <p class="text-lg">Research Portal 메인 — Claude Code에서 구현 예정</p>
+    <a href="{% url 'research_catalog' %}" class="mt-4 inline-block bg-navy text-white px-6 py-3 rounded-lg text-lg">Compound Catalog →</a>
+    <a href="{% url 'landing' %}" class="mt-4 inline-block text-accent underline ml-4">← 메인으로</a>
+</div>
+{% endblock %}

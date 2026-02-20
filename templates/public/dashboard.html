@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- TODO: Claude Code에서 DEVELOPMENT_GUIDE.md 섹션 6-5 참고하여 구현 -->
+<!-- ★ 레퍼런스 이미지 KakaoTalk_Photo_002 기반 3-컬럼 레이아웃 ★ -->
+<header class="bg-navy text-white h-16 flex items-center px-6 justify-between">
+    <div class="flex items-center gap-4">
+        <h1 class="text-xl font-bold">PUBLIC PORTAL</h1>
+        <span class="text-sm text-gray-300">대국민 서비스</span>
+    </div>
+    <input type="text" placeholder="특용작물 DB 기반 탐색" class="bg-navy-light text-white px-4 py-2 rounded-lg w-96 border border-gray-600">
+    <div class="flex gap-2">
+        <span class="bg-yellow-500 text-black px-3 py-1 rounded text-sm font-medium">50종 DB 구축 · 80종 확장</span>
+        <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm">2-TRACK: PUBLIC</span>
+        <span class="border border-gray-400 text-gray-300 px-3 py-1 rounded text-sm">RELEASE V1.0</span>
+    </div>
+</header>
+
+<div class="text-sm text-gray-500 px-6 py-2 border-b">
+    <a href="{% url 'landing' %}">HOME</a> &gt;
+    <a href="{% url 'public_index' %}">PUBLIC TRACK</a> &gt;
+    <span class="text-gray-800">DASHBOARD</span>
+</div>
+
+<div class="flex h-[calc(100vh-120px)]">
+    <!-- 좌측: 탐색 및 비교 -->
+    <aside class="w-64 border-r bg-white p-4 overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-4">탐색 및 비교</h3>
+        <p class="text-sm text-gray-500">Claude Code에서 비교 UI 구현</p>
+    </aside>
+
+    <!-- 중앙: 대시보드 -->
+    <main class="flex-1 p-6 overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-2">작목 상세 대시보드</h2>
+        <p class="text-gray-500 mb-6">{{ current_crop_a }} vs {{ current_crop_b }} 분석 데이터 및 공공 API 연계 지표</p>
+
+        {% if env_data %}
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-white border rounded-lg p-6 text-center">
+                <p class="text-sm text-gray-500">연평균 기온</p>
+                <p class="text-4xl font-bold text-navy">{{ env_data.avg_temperature }} °C</p>
+                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+            </div>
+            <div class="bg-white border rounded-lg p-6 text-center">
+                <p class="text-sm text-gray-500">연평균 강수량</p>
+                <p class="text-4xl font-bold text-navy">{{ env_data.avg_rainfall }} mm</p>
+                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+            </div>
+            <div class="bg-white border rounded-lg p-6 text-center">
+                <p class="text-sm text-gray-500">토양질 지수</p>
+                <p class="text-4xl font-bold text-navy">{{ env_data.soil_grade }}등급</p>
+                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <p class="text-gray-400">차트 및 카드 영역 — Claude Code에서 구현</p>
+    </main>
+
+    <!-- 우측: AI 해설 -->
+    <aside class="w-96 border-l bg-white p-4 overflow-y-auto">
+        <h3 class="text-xl font-bold mb-4">AI 요약·비교·해설</h3>
+        <p class="text-sm text-gray-500">Claude Code에서 AI 해설 패널 구현</p>
+    </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}특용작물 대사체 통합 디지털 플랫폼{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center p-8">
+    <h1 class="text-4xl font-bold text-navy mb-4">특용작물 대사체 통합 디지털 플랫폼</h1>
+    <p class="text-xl text-gray-600 mb-12">특용작물 대사체 통합 데이터 생산·표준화 및 디지털 활용기술 개발</p>
+
+    <div class="flex gap-8 mb-12">
+        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
+            <p class="text-5xl font-bold text-accent">80종</p>
+            <p class="text-lg text-gray-500 mt-2">대사체 DB 구축 목표</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
+            <p class="text-5xl font-bold text-accent">50종</p>
+            <p class="text-lg text-gray-500 mt-2">신규 데이터 생산</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
+            <p class="text-5xl font-bold text-accent">2-Track</p>
+            <p class="text-lg text-gray-500 mt-2">연구자/대국민 분리</p>
+        </div>
+    </div>
+
+    <div class="flex gap-8">
+        <a href="{% url 'research_index' %}" class="block bg-navy text-white rounded-xl p-10 text-center hover:bg-navy-light transition w-80">
+            <h2 class="text-2xl font-bold mb-2">RESEARCH PORTAL</h2>
+            <p class="text-gray-300">연구자용 서비스</p>
+        </a>
+        <a href="{% url 'public_index' %}" class="block bg-accent text-white rounded-xl p-10 text-center hover:bg-accent-light transition w-80">
+            <h2 class="text-2xl font-bold mb-2">PUBLIC PORTAL</h2>
+            <p class="text-blue-200">대국민 서비스</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
