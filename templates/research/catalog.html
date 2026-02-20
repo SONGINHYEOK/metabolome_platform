@@ -416,8 +416,21 @@
                     </div>
                 </div>
 
+                <!-- AI Interpretation -->
+                <div class="my-5" id="aiInterpretSection">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-1">AI 해석</h4>
+                    <p class="text-[10px] text-gray-400 tracking-wider mb-3">GROQ LLM ANALYSIS</p>
+                    <div id="aiInterpretContent">
+                        <div class="bg-gray-50 rounded-xl p-4 text-center text-sm text-gray-400">
+                            성분을 선택하면 AI 해석이 표시됩니다
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
                 <!-- Download Button -->
-                <button class="w-full bg-navy text-white py-3 rounded-lg text-sm font-medium hover:bg-navy-light transition flex items-center justify-center gap-2"
+                <button class="w-full bg-navy text-white py-3 rounded-lg text-sm font-medium hover:bg-navy-light transition flex items-center justify-center gap-2 mt-5"
                         disabled>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -525,6 +538,73 @@ function selectCompound(el) {
     // Update bottom concept score
     document.getElementById('conceptScore').textContent = d.score;
     document.getElementById('conceptScoreBar').style.width = d.score + '%';
+
+    // AI Interpretation via Groq
+    var aiContent = document.getElementById('aiInterpretContent');
+    aiContent.innerHTML = '<div class="bg-blue-50 rounded-xl p-4 text-center text-sm text-blue-600">' +
+        '<div class="inline-block animate-spin w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full mr-2" style="vertical-align:middle"></div>' +
+        'AI 해석 생성 중...</div>';
+
+    fetch('/api/interpret/compound/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            compound: {
+                name: d.name,
+                crop: d.crop,
+                crop_en: d.cropEn,
+                plant_part: d.part,
+                origin: d.origin,
+                year: d.year,
+                annotation_level: d.level,
+                source: d.source,
+                score: parseInt(d.score),
+                similarity: parseFloat(d.similarity),
+                qc_status: d.qc,
+                compound_class: d.class,
+                molecular_weight: d.mw,
+                retention_time: d.rt
+            }
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.error) {
+            aiContent.innerHTML = '<div class="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600">' + data.error + '</div>';
+            return;
+        }
+        if (data.raw_text) {
+            aiContent.innerHTML = '<div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-gray-700 leading-relaxed">' + data.raw_text + '</div>';
+            return;
+        }
+        var html = '';
+        if (data.confidence_assessment) {
+            html += '<div class="mb-3"><div class="flex items-center gap-1.5 mb-1">' +
+                '<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>' +
+                '<span class="text-xs font-semibold text-gray-600">신뢰도 평가</span></div>' +
+                '<p class="text-xs text-gray-600 leading-relaxed">' + data.confidence_assessment + '</p></div>';
+        }
+        if (data.bioactivity_significance) {
+            html += '<div class="mb-3"><div class="flex items-center gap-1.5 mb-1">' +
+                '<span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>' +
+                '<span class="text-xs font-semibold text-gray-600">생리활성 의의</span></div>' +
+                '<p class="text-xs text-gray-600 leading-relaxed">' + data.bioactivity_significance + '</p></div>';
+        }
+        if (data.origin_contribution) {
+            html += '<div class="mb-3"><div class="flex items-center gap-1.5 mb-1">' +
+                '<span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>' +
+                '<span class="text-xs font-semibold text-gray-600">원산지 기여도</span></div>' +
+                '<p class="text-xs text-gray-600 leading-relaxed">' + data.origin_contribution + '</p></div>';
+        }
+        if (data.one_line_summary) {
+            html += '<div class="bg-accent/5 border border-accent/20 rounded-lg p-3 mt-2">' +
+                '<p class="text-xs font-semibold text-accent">' + data.one_line_summary + '</p></div>';
+        }
+        aiContent.innerHTML = '<div class="bg-gray-50 rounded-xl p-4">' + html + '</div>';
+    })
+    .catch(function() {
+        aiContent.innerHTML = '<div class="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600">AI 해석을 불러올 수 없습니다.</div>';
+    });
 }
 
 function getContributions(compoundClass) {

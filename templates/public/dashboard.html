@@ -250,91 +250,117 @@
         <!-- Panel Header -->
         <div class="p-5 border-b bg-gray-50">
             <h3 class="text-base font-bold text-navy mb-1">AI 요약·비교·해설</h3>
-            <span class="bg-accent/10 text-accent px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide">대국민 AI 콘텐츠 (근거 포함)</span>
+            <span class="bg-accent/10 text-accent px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide">GROQ LLM 기반 동적 생성</span>
         </div>
 
-        <div class="p-5">
-            <!-- AI Commentary -->
-            <div class="mb-5">
-                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">AI 해설 콘텐츠</h4>
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                    <p class="text-sm text-gray-700 leading-relaxed">
-                        {{ current_crop_a }}은(는) {{ current_crop_b }} 대비
-                        {% if current_crop_a == '인삼' %}사포닌(Rg1) 1.2배 높음{% else %}주요 지표성분 함량이 상이함{% endif %}.
-                        지역 기후가 성분 축적에 기여하며, 산지별 성분 편차가 확인됩니다.
-                    </p>
-                    <a href="#" class="text-xs text-accent font-medium mt-2 inline-block hover:underline">더보기 &rarr;</a>
+        <div class="p-5" id="dashboardAIPanel">
+            <!-- Loading State -->
+            <div id="dashboardAILoading" class="text-center py-8">
+                <div class="inline-block animate-spin w-6 h-6 border-2 border-accent border-t-transparent rounded-full mb-3"></div>
+                <p class="text-sm text-gray-500">AI 해설 생성 중...</p>
+                <p class="text-xs text-gray-400 mt-1">Groq LLM이 비교 분석을 수행합니다</p>
+            </div>
+
+            <!-- AI Content (dynamically populated) -->
+            <div id="dashboardAIContent" style="display:none">
+                <!-- AI Commentary -->
+                <div class="mb-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">AI 해설 콘텐츠</h4>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                        <p class="text-sm text-gray-700 leading-relaxed" id="aiComparisonSummary"></p>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Environment Impact -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">환경 영향 분석</h4>
+                    <div class="bg-green-50 border border-green-100 rounded-xl p-4">
+                        <p class="text-sm text-gray-700 leading-relaxed" id="aiEnvironmentImpact"></p>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Usage Scenarios -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용 시나리오</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                            <span class="text-lg shrink-0">&#127963;</span>
+                            <div>
+                                <p class="text-sm font-semibold text-navy">정책</p>
+                                <p class="text-xs text-gray-500" id="aiUsagePolicy"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                            <span class="text-lg shrink-0">&#127981;</span>
+                            <div>
+                                <p class="text-sm font-semibold text-navy">산업</p>
+                                <p class="text-xs text-gray-500" id="aiUsageIndustry"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                            <span class="text-lg shrink-0">&#127806;</span>
+                            <div>
+                                <p class="text-sm font-semibold text-navy">농업인</p>
+                                <p class="text-xs text-gray-500" id="aiUsageFarmer"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Application Models -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용모델 (현장 활용)</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                            원산지 확인 및 위변조 이해
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                            성분 기반 품질 선택 가이드
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                            <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                            환경 기반 해석 (공공 API)
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Uncertainty Notice -->
+                <div class="my-5">
+                    <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-4">
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 shrink-0 mt-0.5">&#9432;</span>
+                            <div>
+                                <p class="text-xs font-semibold text-yellow-800 mb-1">불확실성 및 해상도 안내</p>
+                                <p class="text-xs text-yellow-700 leading-relaxed" id="aiUncertaintyNote">
+                                    분석 결과는 표본 및 해상도에 따라 차이가 있을 수 있음.
+                                    본 데이터는 연구용 참고자료이며, 의학적 판단의 근거로 사용할 수 없습니다.
+                                </p>
+                                <a href="#" class="text-[10px] text-yellow-600 font-medium mt-1 inline-block hover:underline">상세 &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <hr class="border-gray-100 -mx-5">
-
-            <!-- Usage Scenarios -->
-            <div class="my-5">
-                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용 시나리오</h4>
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                        <span class="text-lg shrink-0">&#127963;</span>
-                        <div>
-                            <p class="text-sm font-semibold text-navy">정책</p>
-                            <p class="text-xs text-gray-500">지역별 지표 요약, 정책용 보고자료</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                        <span class="text-lg shrink-0">&#127981;</span>
-                        <div>
-                            <p class="text-sm font-semibold text-navy">산업</p>
-                            <p class="text-xs text-gray-500">후보 성분 비교, R&D 의사결정 참고</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                        <span class="text-lg shrink-0">&#127806;</span>
-                        <div>
-                            <p class="text-sm font-semibold text-navy">농업인</p>
-                            <p class="text-xs text-gray-500">재배 환경 이해, 현장 의사결정 보조</p>
-                        </div>
-                    </div>
+            <!-- Error State -->
+            <div id="dashboardAIError" style="display:none" class="text-center py-8">
+                <div class="text-red-400 mb-3">
+                    <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
                 </div>
-            </div>
-
-            <hr class="border-gray-100 -mx-5">
-
-            <!-- Application Models -->
-            <div class="my-5">
-                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용모델 (현장 활용)</h4>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
-                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
-                        원산지 확인 및 위변조 이해
-                    </div>
-                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
-                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
-                        성분 기반 품질 선택 가이드
-                    </div>
-                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
-                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
-                        환경 기반 해석 (공공 API)
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-gray-100 -mx-5">
-
-            <!-- Uncertainty Notice -->
-            <div class="my-5">
-                <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-4">
-                    <div class="flex items-start gap-2">
-                        <span class="text-yellow-500 shrink-0 mt-0.5">&#9432;</span>
-                        <div>
-                            <p class="text-xs font-semibold text-yellow-800 mb-1">불확실성 및 해상도 안내</p>
-                            <p class="text-xs text-yellow-700 leading-relaxed">
-                                분석 결과는 표본 및 해상도에 따라 차이가 있을 수 있음.
-                                본 데이터는 연구용 참고자료이며, 의학적 판단의 근거로 사용할 수 없습니다.
-                            </p>
-                            <a href="#" class="text-[10px] text-yellow-600 font-medium mt-1 inline-block hover:underline">상세 &rarr;</a>
-                        </div>
-                    </div>
-                </div>
+                <p class="text-sm text-gray-500" id="dashboardAIErrorMsg">AI 해석을 불러올 수 없습니다.</p>
+                <button onclick="loadDashboardAI()" class="mt-3 text-xs text-accent font-medium hover:underline">다시 시도</button>
             </div>
         </div>
     </aside>
@@ -443,6 +469,76 @@
             }
         }
     });
+
+    /* ========== Dashboard AI Interpretation ========== */
+    function loadDashboardAI() {
+        document.getElementById('dashboardAILoading').style.display = '';
+        document.getElementById('dashboardAIContent').style.display = 'none';
+        document.getElementById('dashboardAIError').style.display = 'none';
+
+        var dashboardData = {
+            crop_a: {
+                name: '{{ current_crop_a }}',
+                compounds: compoundsA
+            },
+            crop_b: {
+                name: '{{ current_crop_b }}',
+                compounds: compoundsB
+            },
+            environment: {
+                {% if env_data %}
+                region: '{{ env_data.region }}',
+                avg_temperature: {{ env_data.avg_temperature }},
+                avg_rainfall: {{ env_data.avg_rainfall }},
+                soil_grade: '{{ env_data.soil_grade }}'
+                {% endif %}
+            }
+        };
+
+        fetch('/api/interpret/dashboard/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({dashboard: dashboardData})
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            document.getElementById('dashboardAILoading').style.display = 'none';
+
+            if (data.error) {
+                document.getElementById('dashboardAIError').style.display = '';
+                document.getElementById('dashboardAIErrorMsg').textContent = data.error;
+                return;
+            }
+
+            if (data.raw_text) {
+                document.getElementById('aiComparisonSummary').textContent = data.raw_text;
+                document.getElementById('dashboardAIContent').style.display = '';
+                return;
+            }
+
+            document.getElementById('aiComparisonSummary').textContent = data.comparison_summary || '';
+            document.getElementById('aiEnvironmentImpact').textContent = data.environment_impact || '';
+
+            if (data.usage_insights) {
+                document.getElementById('aiUsagePolicy').textContent = data.usage_insights.policy || '';
+                document.getElementById('aiUsageIndustry').textContent = data.usage_insights.industry || '';
+                document.getElementById('aiUsageFarmer').textContent = data.usage_insights.farmer || '';
+            }
+
+            if (data.uncertainty_note) {
+                document.getElementById('aiUncertaintyNote').textContent = data.uncertainty_note;
+            }
+
+            document.getElementById('dashboardAIContent').style.display = '';
+        })
+        .catch(function() {
+            document.getElementById('dashboardAILoading').style.display = 'none';
+            document.getElementById('dashboardAIError').style.display = '';
+        });
+    }
+
+    // Load AI content on page load
+    loadDashboardAI();
 })();
 </script>
 {% endblock %}

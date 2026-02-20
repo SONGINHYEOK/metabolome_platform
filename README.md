@@ -6,7 +6,7 @@
 
 | Track | 대상 | 핵심 기능 |
 |-------|------|-----------|
-| **Research Portal** | 연구자 | Compound Catalog, AI 원산지 판별, 표준 데이터 패키지, QC 검증 |
+| **Research Portal** | 연구자 | Compound Catalog, 원산지 판별, 표준 데이터 패키지, QC 검증 |
 | **Public Portal** | 대국민 (소비자·농업인·지자체) | 작목 대시보드, 성분 신뢰지수, 성분 백과, 지역별 성분 지도 |
 
 ## 기술 스택

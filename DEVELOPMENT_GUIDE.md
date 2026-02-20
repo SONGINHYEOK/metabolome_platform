@@ -216,7 +216,7 @@ class EnvironmentData(models.Model):
 - 브레드크럼: HOME > METABOLOMICS DB > RESEARCH PORTAL
 - 주요 기능 카드 (계획서 표-4 기반):
   1. "Compound Catalog" — 데이터 탐색·검색 → /research/catalog/
-  2. "AI 기반 원산지 판별" — 활용모델 (화면만, 동작X)
+  2. "원산지 판별" — 활용모델 (화면만, 동작X)
   3. "표준 데이터 패키지" — 다운로드 및 API (화면만)
   4. "QC 검증 및 버전관리" — 릴리즈 관리 (화면만)
 
