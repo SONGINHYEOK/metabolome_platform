@@ -1,57 +1,588 @@
 {% extends "base.html" %}
+{% block title %}Compound Catalog — RESEARCH PORTAL{% endblock %}
+
 {% block content %}
-<!-- TODO: Claude Code에서 DEVELOPMENT_GUIDE.md 섹션 6-3 참고하여 구현 -->
-<!-- ★ 레퍼런스 이미지 KakaoTalk_Photo_001 기반 3-컬럼 레이아웃 ★ -->
-<header class="bg-navy text-white h-16 flex items-center px-6 justify-between">
+<!-- ===== NAVY HEADER ===== -->
+<header class="bg-navy text-white h-16 flex items-center px-6 justify-between shrink-0">
     <div class="flex items-center gap-4">
-        <h1 class="text-xl font-bold">RESEARCH PORTAL</h1>
+        <a href="{% url 'research_index' %}" class="text-xl font-bold hover:text-blue-300 transition">RESEARCH PORTAL</a>
         <span class="text-sm text-gray-300">연구자용 서비스</span>
     </div>
-    <input type="text" placeholder="Search sample, compound, feature" class="bg-navy-light text-white px-4 py-2 rounded-lg w-96 border border-gray-600">
-    <span class="border border-blue-400 text-blue-400 px-3 py-1 rounded text-sm">2-TRACK: RESEARCH</span>
+    <input type="text" placeholder="Search sample, compound, feature"
+           class="bg-navy-light text-white placeholder-gray-400 px-4 py-2 rounded-lg w-96 border border-gray-600 focus:border-blue-400 focus:outline-none text-sm">
+    <span class="border border-blue-400 text-blue-400 px-3 py-1 rounded text-sm font-medium">2-TRACK: RESEARCH</span>
 </header>
 
-<div class="text-sm text-gray-500 px-6 py-2 border-b">
-    <a href="{% url 'landing' %}">HOME</a> &gt;
-    <a href="{% url 'research_index' %}">METABOLOMICS DB</a> &gt;
-    <span class="text-gray-800">RESEARCH PORTAL</span>
+<!-- ===== BREADCRUMB ===== -->
+<div class="text-sm text-gray-500 px-6 py-2 border-b bg-white flex items-center gap-2 shrink-0">
+    <a href="{% url 'landing' %}" class="hover:text-accent transition">HOME</a>
+    <span class="text-gray-300">&gt;</span>
+    <a href="{% url 'research_index' %}" class="hover:text-accent transition">METABOLOMICS DB</a>
+    <span class="text-gray-300">&gt;</span>
+    <span class="text-gray-800 font-medium">COMPOUND CATALOG</span>
 </div>
 
-<div class="flex h-[calc(100vh-120px)]">
-    <!-- 좌측: 필터 -->
-    <aside class="w-64 border-r bg-white p-4 overflow-y-auto">
-        <h3 class="text-lg font-semibold mb-4">조건 기반 탐색 (FILTERS)</h3>
-        <p class="text-sm text-gray-500">Claude Code에서 필터 UI 구현</p>
-    </aside>
+<!-- ===== 3-COLUMN LAYOUT ===== -->
+<div class="flex h-[calc(100vh-112px)]">
 
-    <!-- 중앙: Compound 목록 -->
-    <main class="flex-1 p-6 overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-4">COMPOUND CATALOG</h2>
-        <p class="text-gray-500 mb-4">총 {{ compounds.count }}건</p>
-        {% for c in compounds %}
-        <div class="bg-white border rounded-lg p-4 mb-2 flex items-center justify-between">
-            <div>
-                <span class="text-lg font-semibold">{{ c.name }}</span>
-                <span class="text-sm text-gray-500 ml-2">{{ c.crop.name_ko }} 유래</span>
+    <!-- ========== LEFT: FILTERS SIDEBAR ========== -->
+    <aside class="w-64 border-r bg-white p-5 overflow-y-auto shrink-0">
+        <h3 class="text-base font-bold text-navy mb-0.5">조건 기반 탐색</h3>
+        <p class="text-[11px] text-gray-400 tracking-wider mb-5">CONDITION-BASED FILTERS</p>
+
+        <form method="get" id="filterForm">
+            <!-- CROP -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">작목 (CROP)</label>
+                <select name="crop"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none"
+                        onchange="this.form.submit()">
+                    <option value="">전체 선택</option>
+                    {% for c in crops %}
+                    <option value="{{ c }}" {% if c == current_crop %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="bg-gray-100 px-2 py-1 rounded text-sm">{{ c.annotation_level }}</span>
-                <span class="{% if c.source == 'IN-HOUSE' %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %} px-2 py-1 rounded text-sm">{{ c.source }}</span>
-                <span class="text-2xl font-bold">{{ c.score }}</span>
-                <span class="{% if c.qc_status == 'PASS' %}text-green-600{% else %}text-orange-500{% endif %} font-medium">{{ c.qc_status }}</span>
+
+            <!-- PLANT PART -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">부위 (PLANT PART)</label>
+                <select name="part"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none"
+                        onchange="this.form.submit()">
+                    <option value="">전체 선택</option>
+                    {% for p in parts %}
+                    <option value="{{ p }}" {% if p == current_part %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ORIGIN -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">산지 (ORIGIN)</label>
+                <select name="origin"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none"
+                        onchange="this.form.submit()">
+                    <option value="">전체 선택</option>
+                    {% for o in origins %}
+                    <option value="{{ o }}" {% if o == current_origin %}selected{% endif %}>{{ o }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- YEAR -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">연도 (YEAR)</label>
+                <select name="year"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none"
+                        onchange="this.form.submit()">
+                    <option value="">전체 선택</option>
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y|stringformat:"d" == current_year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- QC STATUS -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">QC 상태 (QC STATUS)</label>
+                <select name="qc"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none"
+                        onchange="this.form.submit()">
+                    <option value="">전체</option>
+                    <option value="PASS" {% if current_qc == 'PASS' %}selected{% endif %}>PASS</option>
+                    <option value="REVIEW" {% if current_qc == 'REVIEW' %}selected{% endif %}>REVIEW</option>
+                    <option value="FAIL" {% if current_qc == 'FAIL' %}selected{% endif %}>FAIL</option>
+                </select>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-navy text-white py-2.5 rounded-lg text-sm font-medium hover:bg-navy-light transition">
+                필터 적용
+            </button>
+            <a href="{% url 'research_catalog' %}"
+               class="block text-center text-xs text-gray-400 mt-2 hover:text-gray-600 transition">초기화</a>
+        </form>
+
+        <!-- Filter Summary -->
+        <div class="mt-6 pt-4 border-t">
+            <p class="text-[11px] text-gray-400 tracking-wider mb-2">FILTER SUMMARY</p>
+            <div class="space-y-1 text-xs text-gray-500">
+                <p>전체 DB: <span class="font-semibold text-navy">{{ total_count }}건</span></p>
+                <p>현재 표시: <span class="font-semibold text-accent">{{ compounds|length }}건</span></p>
             </div>
         </div>
-        {% endfor %}
+    </aside>
+
+    <!-- ========== CENTER: COMPOUND CATALOG ========== -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-end justify-between mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-navy">COMPOUND CATALOG</h2>
+                    <p class="text-sm text-gray-500 mt-1">
+                        총 <span class="font-bold text-navy">{{ total_count }}</span>건 중
+                        <span class="font-bold text-accent">{{ compounds|length }}</span>개 표시
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">L1</span> 표준물질
+                    <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">L2</span> 라이브러리
+                    <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-bold">L3</span> 추정
+                </div>
+            </div>
+
+            <!-- Compound List -->
+            <div class="space-y-2" id="compoundList">
+                {% for c in compounds %}
+                <div class="compound-row bg-white border border-gray-200 rounded-lg px-5 py-3.5 cursor-pointer hover:border-accent hover:shadow-md transition-all flex items-center justify-between group"
+                     data-id="{{ c.id }}"
+                     data-name="{{ c.name }}"
+                     data-crop="{{ c.crop.name_ko }}"
+                     data-crop-en="{{ c.crop.name_en }}"
+                     data-part="{{ c.crop.plant_part }}"
+                     data-origin="{{ c.crop.origin }}"
+                     data-year="{{ c.crop.year }}"
+                     data-level="{{ c.annotation_level }}"
+                     data-source="{{ c.source }}"
+                     data-score="{{ c.score }}"
+                     data-similarity="{{ c.similarity }}"
+                     data-qc="{{ c.qc_status }}"
+                     data-class="{{ c.compound_class }}"
+                     data-mw="{{ c.molecular_weight|default_if_none:'-' }}"
+                     data-rt="{{ c.retention_time|default_if_none:'-' }}"
+                     onclick="selectCompound(this)">
+                    <!-- Left: Name + Origin -->
+                    <div class="flex-1 min-w-0 mr-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base font-semibold text-gray-900 group-hover:text-accent transition truncate">{{ c.name }}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ c.crop.name_ko }} ({{ c.crop.name_en }}) 유래</span>
+                    </div>
+                    <!-- Right: Badges + Score -->
+                    <div class="flex items-center gap-3 shrink-0">
+                        <!-- Annotation Level -->
+                        <span class="{% if c.annotation_level == 'L1' %}bg-green-100 text-green-700{% elif c.annotation_level == 'L2' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-500{% endif %} px-2.5 py-0.5 rounded-full text-xs font-bold">
+                            {{ c.annotation_level }}
+                        </span>
+                        <!-- Source -->
+                        <span class="{% if c.source == 'IN-HOUSE' %}bg-yellow-100 text-yellow-800 border-yellow-200{% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %} border px-2.5 py-0.5 rounded-full text-xs font-medium">
+                            {{ c.source }}
+                        </span>
+                        <!-- Similarity -->
+                        <span class="text-xs text-gray-400 font-mono">S:{{ c.similarity }}</span>
+                        <!-- Score (Big) -->
+                        <span class="text-2xl font-bold text-navy min-w-[2.5rem] text-right tabular-nums">{{ c.score }}</span>
+                        <!-- QC Status -->
+                        <span class="{% if c.qc_status == 'PASS' %}bg-green-50 text-green-600 border-green-200{% elif c.qc_status == 'REVIEW' %}bg-orange-50 text-orange-500 border-orange-200{% else %}bg-red-50 text-red-500 border-red-200{% endif %} border px-2.5 py-0.5 rounded text-xs font-bold min-w-[4rem] text-center">
+                            {{ c.qc_status }}
+                        </span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-16 text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <p class="text-base">조건에 맞는 성분이 없습니다</p>
+                    <p class="text-sm mt-1">필터를 변경하여 다시 검색해보세요</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- View More -->
+            {% if compounds %}
+            <div class="mt-4 text-center">
+                <button class="text-accent hover:text-accent-light font-medium text-sm px-6 py-2 border border-accent/30 rounded-lg hover:bg-accent/5 transition" disabled>
+                    + VIEW MORE (개발 예정)
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- ===== BOTTOM: Expert Analysis Concept ===== -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="flex items-center gap-3 mb-4">
+                    <h3 class="text-lg font-bold text-navy">전문가용 근거 분석</h3>
+                    <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded tracking-wider">CONCEPT IMAGE</span>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- A: ANNOTATION LEVEL -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                                <span class="text-green-600 font-bold">A</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-navy">ANNOTATION LEVEL</h4>
+                                <p class="text-[11px] text-gray-400">MSI 기반 동정 신뢰도</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold w-8 text-center">L1</span>
+                                <div class="flex-1 bg-green-100 rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full" style="width:95%"></div></div>
+                                <span class="text-gray-500 w-24 text-right">표준물질 대조</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold w-8 text-center">L2</span>
+                                <div class="flex-1 bg-blue-100 rounded-full h-1.5"><div class="bg-blue-500 h-1.5 rounded-full" style="width:70%"></div></div>
+                                <span class="text-gray-500 w-24 text-right">라이브러리 매칭</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-bold w-8 text-center">L3</span>
+                                <div class="flex-1 bg-gray-100 rounded-full h-1.5"><div class="bg-gray-400 h-1.5 rounded-full" style="width:40%"></div></div>
+                                <span class="text-gray-500 w-24 text-right">분자식 기반 추정</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- B: LIBRARY MATCH -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                                <span class="text-blue-600 font-bold">B</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-navy">LIBRARY MATCH</h4>
+                                <p class="text-[11px] text-gray-400">GNPS / MetaboLights / MoNA</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 h-20 flex flex-col items-center justify-center">
+                            <svg class="w-10 h-6 text-blue-400 mb-1" viewBox="0 0 100 40">
+                                <polyline fill="none" stroke="currentColor" stroke-width="2"
+                                    points="0,35 10,30 15,5 20,33 30,32 35,10 40,34 50,33 55,8 60,35 70,33 75,15 80,34 90,33 100,35"/>
+                            </svg>
+                            <span class="text-[10px] text-blue-500 font-medium">스펙트럼 매칭 시각화 영역</span>
+                        </div>
+                        <div class="flex justify-between mt-3 text-[10px] text-gray-400">
+                            <span>Match Score: <span class="text-navy font-bold text-xs">0.94</span></span>
+                            <span>Library: <span class="text-navy font-bold text-xs">GNPS</span></span>
+                        </div>
+                    </div>
+
+                    <!-- C: SCORE -->
+                    <div class="bg-white border border-gray-200 rounded-lg p-5">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
+                                <span class="text-purple-600 font-bold">C</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-navy">SCORE</h4>
+                                <p class="text-[11px] text-gray-400">종합 신뢰도 점수 (0~100)</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-navy" id="conceptScore">96</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
+                                <div class="bg-accent h-2.5 rounded-full transition-all" style="width:96%" id="conceptScoreBar"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+                                <span>0</span>
+                                <span>50</span>
+                                <span>100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- 우측: 상세 패널 -->
-    <aside class="w-96 border-l bg-white p-4 overflow-y-auto">
-        {% if selected %}
-        <h3 class="text-xl font-bold">{{ selected.name }}</h3>
-        <p class="text-sm text-gray-500">{{ selected.crop.name_ko }} 유래</p>
-        {% else %}
-        <p class="text-gray-400 text-center mt-20">성분을 선택하면 상세 정보가 표시됩니다</p>
-        {% endif %}
+    <!-- ========== RIGHT: DETAIL PANEL ========== -->
+    <aside class="w-96 border-l bg-white overflow-y-auto shrink-0" id="detailPanel">
+        <!-- Placeholder -->
+        <div id="detailPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-300 px-6">
+            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p class="text-sm text-center">좌측 목록에서 성분을 선택하면<br>상세 정보가 표시됩니다</p>
+        </div>
+
+        <!-- Detail Content -->
+        <div id="detailContent" class="hidden">
+            <!-- Detail Header -->
+            <div class="p-5 border-b bg-gray-50">
+                <div class="flex items-center gap-2 mb-1">
+                    <h3 class="text-xl font-bold text-navy" id="detailName"></h3>
+                    <span id="detailLevelBadge" class="px-2 py-0.5 rounded-full text-xs font-bold"></span>
+                </div>
+                <p class="text-sm text-gray-500" id="detailCropInfo"></p>
+            </div>
+
+            <div class="p-5">
+                <!-- Meta Grid -->
+                <div class="grid grid-cols-2 gap-2 mb-5">
+                    <div class="bg-gray-50 rounded-lg px-3 py-2.5">
+                        <span class="text-[10px] text-gray-400 tracking-wider">작목</span>
+                        <p class="text-sm font-semibold text-navy mt-0.5" id="detailCrop"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg px-3 py-2.5">
+                        <span class="text-[10px] text-gray-400 tracking-wider">부위</span>
+                        <p class="text-sm font-semibold text-navy mt-0.5" id="detailPart"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg px-3 py-2.5">
+                        <span class="text-[10px] text-gray-400 tracking-wider">산지</span>
+                        <p class="text-sm font-semibold text-navy mt-0.5" id="detailOrigin"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg px-3 py-2.5">
+                        <span class="text-[10px] text-gray-400 tracking-wider">연도</span>
+                        <p class="text-sm font-semibold text-navy mt-0.5" id="detailYear"></p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b mb-5 -mx-5 px-5">
+                    <button class="px-3 py-2 border-b-2 border-accent text-accent text-xs font-semibold">개요</button>
+                    <button class="px-3 py-2 text-gray-400 text-xs" disabled title="개발 예정">스펙트럼</button>
+                    <button class="px-3 py-2 text-gray-400 text-xs" disabled title="개발 예정">QC</button>
+                    <button class="px-3 py-2 text-gray-400 text-xs" disabled title="개발 예정">다운로드 및 API</button>
+                    <button class="px-3 py-2 text-gray-400 text-xs" disabled title="개발 예정">분석</button>
+                </div>
+
+                <!-- Compound Info -->
+                <div class="mb-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-2.5">성분 정보</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">분류</span>
+                            <span class="font-medium text-gray-800" id="detailClass"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">분자량 (MW)</span>
+                            <span class="font-medium text-gray-800 font-mono" id="detailMW"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">잔류시간 (RT)</span>
+                            <span class="font-medium text-gray-800 font-mono" id="detailRT"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Source</span>
+                            <span id="detailSourceBadge" class="px-2 py-0.5 rounded-full text-xs font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Research Model -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용모델 (RESEARCH MODEL)</h4>
+                    <div class="space-y-2.5">
+                        <label class="flex items-center gap-2.5 text-sm cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1.5 -mx-2 transition">
+                            <input type="radio" name="researchModel" checked
+                                   class="w-4 h-4 text-accent border-gray-300 focus:ring-accent">
+                            <span class="text-gray-700">원산지 판별 (모델)</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 text-sm cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1.5 -mx-2 transition">
+                            <input type="radio" name="researchModel"
+                                   class="w-4 h-4 text-accent border-gray-300 focus:ring-accent">
+                            <span class="text-gray-700">성분 특성 및 패턴 분석</span>
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- TOP 3 Contribution -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-1">근거 및 해석</h4>
+                    <p class="text-[10px] text-gray-400 tracking-wider mb-3">TOP 3 CONTRIBUTION</p>
+                    <div class="space-y-3" id="contributionBars"></div>
+                </div>
+
+                <hr class="border-gray-100 -mx-5">
+
+                <!-- Quick Analysis -->
+                <div class="my-5">
+                    <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">QUICK ANALYSIS</h4>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-sm text-gray-600">원산지 판별 결과</span>
+                            <span id="detailConfBadge" class="px-2.5 py-0.5 rounded text-xs font-bold"></span>
+                        </div>
+                        <div class="flex items-center gap-8">
+                            <div>
+                                <span class="text-[10px] text-gray-400 tracking-wider">SCORE</span>
+                                <p class="text-3xl font-bold text-navy tabular-nums" id="detailScoreBig"></p>
+                            </div>
+                            <div class="w-px h-10 bg-gray-200"></div>
+                            <div>
+                                <span class="text-[10px] text-gray-400 tracking-wider">SIMILARITY</span>
+                                <p class="text-3xl font-bold text-accent tabular-nums" id="detailSimBig"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <button class="w-full bg-navy text-white py-3 rounded-lg text-sm font-medium hover:bg-navy-light transition flex items-center justify-center gap-2"
+                        disabled>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    데이터 패키지 다운로드 (개발 예정)
+                </button>
+            </div>
+        </div>
     </aside>
+
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* ========== Compound Selection Logic ========== */
+function selectCompound(el) {
+    // Remove previous selection
+    document.querySelectorAll('.compound-row').forEach(function(row) {
+        row.classList.remove('border-accent', 'shadow-md', 'bg-blue-50/50', 'ring-1', 'ring-accent/20');
+        row.classList.add('border-gray-200');
+    });
+
+    // Highlight selected
+    el.classList.remove('border-gray-200');
+    el.classList.add('border-accent', 'shadow-md', 'bg-blue-50/50', 'ring-1', 'ring-accent/20');
+
+    // Get data attributes
+    var d = el.dataset;
+
+    // Show detail panel
+    document.getElementById('detailPlaceholder').classList.add('hidden');
+    document.getElementById('detailContent').classList.remove('hidden');
+
+    // Populate header
+    document.getElementById('detailName').textContent = d.name;
+    document.getElementById('detailCropInfo').textContent = d.crop + ' (' + d.cropEn + ') 유래';
+
+    // Level badge
+    var lb = document.getElementById('detailLevelBadge');
+    lb.textContent = d.level;
+    if (d.level === 'L1') {
+        lb.className = 'px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700';
+    } else if (d.level === 'L2') {
+        lb.className = 'px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700';
+    } else {
+        lb.className = 'px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500';
+    }
+
+    // Meta
+    document.getElementById('detailCrop').textContent = d.crop;
+    document.getElementById('detailPart').textContent = d.part;
+    document.getElementById('detailOrigin').textContent = d.origin;
+    document.getElementById('detailYear').textContent = d.year;
+
+    // Compound info
+    document.getElementById('detailClass').textContent = d.class || '-';
+    document.getElementById('detailMW').textContent = d.mw !== '-' ? d.mw : '-';
+    document.getElementById('detailRT').textContent = d.rt !== '-' ? d.rt + ' min' : '-';
+
+    // Source badge
+    var sb = document.getElementById('detailSourceBadge');
+    sb.textContent = d.source;
+    if (d.source === 'IN-HOUSE') {
+        sb.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200';
+    } else {
+        sb.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200';
+    }
+
+    // Scores
+    var score = parseInt(d.score);
+    document.getElementById('detailScoreBig').textContent = d.score;
+    document.getElementById('detailSimBig').textContent = d.similarity;
+
+    // Confidence badge
+    var cb = document.getElementById('detailConfBadge');
+    if (score >= 90) {
+        cb.textContent = 'HIGH';
+        cb.className = 'px-2.5 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700';
+    } else if (score >= 80) {
+        cb.textContent = 'MEDIUM';
+        cb.className = 'px-2.5 py-0.5 rounded text-xs font-bold bg-yellow-100 text-yellow-700';
+    } else {
+        cb.textContent = 'LOW';
+        cb.className = 'px-2.5 py-0.5 rounded text-xs font-bold bg-orange-100 text-orange-600';
+    }
+
+    // Contribution bars
+    var contribs = getContributions(d.class);
+    var colors = ['bg-accent', 'bg-blue-400', 'bg-indigo-300'];
+    var html = '';
+    for (var i = 0; i < contribs.length; i++) {
+        html += '<div>' +
+            '<div class="flex justify-between text-xs mb-1">' +
+                '<span class="text-gray-600">' + contribs[i].name + '</span>' +
+                '<span class="font-bold text-navy">' + contribs[i].value + '%</span>' +
+            '</div>' +
+            '<div class="w-full bg-gray-100 rounded-full h-2">' +
+                '<div class="' + colors[i] + ' h-2 rounded-full transition-all duration-500" style="width:' + contribs[i].value + '%"></div>' +
+            '</div>' +
+        '</div>';
+    }
+    document.getElementById('contributionBars').innerHTML = html;
+
+    // Update bottom concept score
+    document.getElementById('conceptScore').textContent = d.score;
+    document.getElementById('conceptScoreBar').style.width = d.score + '%';
+}
+
+function getContributions(compoundClass) {
+    var map = {
+        'Saponin': [
+            { name: 'Saponin', value: 65 },
+            { name: 'Sugar moiety', value: 25 },
+            { name: 'Aglycone', value: 10 }
+        ],
+        'Coumarin': [
+            { name: 'Coumarin core', value: 58 },
+            { name: 'Side chain', value: 28 },
+            { name: 'Ring system', value: 14 }
+        ],
+        'Flavonoid': [
+            { name: 'Flavone ring', value: 62 },
+            { name: 'Hydroxyl group', value: 24 },
+            { name: 'Glycoside', value: 14 }
+        ],
+        'Anthraquinone': [
+            { name: 'Quinone ring', value: 55 },
+            { name: 'Hydroxyl group', value: 30 },
+            { name: 'Side chain', value: 15 }
+        ],
+        'Diterpene': [
+            { name: 'Terpene skeleton', value: 60 },
+            { name: 'Keto group', value: 25 },
+            { name: 'Ring fusion', value: 15 }
+        ],
+        'Phenolic acid': [
+            { name: 'Phenolic ring', value: 52 },
+            { name: 'Carboxyl group', value: 30 },
+            { name: 'Ester bond', value: 18 }
+        ],
+        'Polysaccharide': [
+            { name: 'Glucan backbone', value: 70 },
+            { name: 'Branch chain', value: 20 },
+            { name: 'Linkage type', value: 10 }
+        ],
+        'Nucleoside': [
+            { name: 'Base moiety', value: 50 },
+            { name: 'Sugar moiety', value: 35 },
+            { name: 'Glycosidic bond', value: 15 }
+        ]
+    };
+    return map[compoundClass] || [
+        { name: 'Primary structure', value: 55 },
+        { name: 'Functional group', value: 30 },
+        { name: 'Backbone', value: 15 }
+    ];
+}
+
+// Auto-select first compound on load
+document.addEventListener('DOMContentLoaded', function() {
+    var first = document.querySelector('.compound-row');
+    if (first) {
+        selectCompound(first);
+    }
+});
+</script>
 {% endblock %}

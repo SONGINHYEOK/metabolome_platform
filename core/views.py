@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from .models import Crop, Compound, EnvironmentData
 
@@ -13,14 +14,19 @@ def landing(request):
 
 
 def research_index(request):
-    return render(request, 'research/index.html')
+    context = {
+        'compound_count': Compound.objects.count(),
+        'crop_count': Crop.objects.values('name_ko').distinct().count(),
+    }
+    return render(request, 'research/index.html', context)
 
 
 def research_catalog(request):
     crop_filter = request.GET.get('crop', '')
     part_filter = request.GET.get('part', '')
     origin_filter = request.GET.get('origin', '')
-    qc_filter = request.GET.get('qc', '')
+    year_filter = request.GET.get('year', '')
+    qc_filter = request.GET.get('qc', 'PASS')
 
     compounds = Compound.objects.select_related('crop').all()
 
@@ -30,34 +36,37 @@ def research_catalog(request):
         compounds = compounds.filter(crop__plant_part=part_filter)
     if origin_filter:
         compounds = compounds.filter(crop__origin=origin_filter)
+    if year_filter:
+        compounds = compounds.filter(crop__year=int(year_filter))
     if qc_filter:
         compounds = compounds.filter(qc_status=qc_filter)
 
     crops = Crop.objects.values_list('name_ko', flat=True).distinct()
     parts = Crop.objects.values_list('plant_part', flat=True).distinct()
     origins = Crop.objects.values_list('origin', flat=True).distinct()
-
-    selected_id = request.GET.get('selected', None)
-    selected_compound = None
-    if selected_id:
-        selected_compound = Compound.objects.select_related('crop').filter(id=selected_id).first()
+    years = Crop.objects.values_list('year', flat=True).distinct().order_by('-year')
 
     context = {
         'compounds': compounds,
-        'selected': selected_compound,
         'crops': crops,
         'parts': parts,
         'origins': origins,
+        'years': years,
         'current_crop': crop_filter,
         'current_part': part_filter,
         'current_origin': origin_filter,
+        'current_year': year_filter,
         'current_qc': qc_filter,
+        'total_count': Compound.objects.count(),
     }
     return render(request, 'research/catalog.html', context)
 
 
 def public_index(request):
-    return render(request, 'public/index.html')
+    context = {
+        'crop_count': Crop.objects.values('name_ko').distinct().count(),
+    }
+    return render(request, 'public/index.html', context)
 
 
 def public_dashboard(request):
@@ -83,6 +92,8 @@ def public_dashboard(request):
         'crop_b': crop_b,
         'compounds_a': compounds_a,
         'compounds_b': compounds_b,
+        'compounds_a_json': json.dumps(compounds_a),
+        'compounds_b_json': json.dumps(compounds_b),
         'env_data': env_data,
         'crops': crops,
         'current_crop_a': crop_a_name,

@@ -2,34 +2,73 @@
 {% block title %}특용작물 대사체 통합 디지털 플랫폼{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex flex-col items-center justify-center p-8">
-    <h1 class="text-4xl font-bold text-navy mb-4">특용작물 대사체 통합 디지털 플랫폼</h1>
-    <p class="text-xl text-gray-600 mb-12">특용작물 대사체 통합 데이터 생산·표준화 및 디지털 활용기술 개발</p>
-
-    <div class="flex gap-8 mb-12">
-        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
-            <p class="text-5xl font-bold text-accent">80종</p>
-            <p class="text-lg text-gray-500 mt-2">대사체 DB 구축 목표</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
-            <p class="text-5xl font-bold text-accent">50종</p>
-            <p class="text-lg text-gray-500 mt-2">신규 데이터 생산</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm border p-8 text-center">
-            <p class="text-5xl font-bold text-accent">2-Track</p>
-            <p class="text-lg text-gray-500 mt-2">연구자/대국민 분리</p>
+<div class="min-h-screen flex flex-col">
+    <!-- Top bar -->
+    <div class="bg-navy text-white h-12 flex items-center px-6 justify-between shrink-0">
+        <span class="text-sm font-medium tracking-wide">특용작물 대사체 통합 디지털 플랫폼</span>
+        <div class="flex items-center gap-3 text-xs text-gray-400">
+            <span>METABOLOMICS PLATFORM</span>
+            <span class="w-px h-4 bg-gray-600"></span>
+            <span>인실리콕스</span>
         </div>
     </div>
 
-    <div class="flex gap-8">
-        <a href="{% url 'research_index' %}" class="block bg-navy text-white rounded-xl p-10 text-center hover:bg-navy-light transition w-80">
-            <h2 class="text-2xl font-bold mb-2">RESEARCH PORTAL</h2>
-            <p class="text-gray-300">연구자용 서비스</p>
-        </a>
-        <a href="{% url 'public_index' %}" class="block bg-accent text-white rounded-xl p-10 text-center hover:bg-accent-light transition w-80">
-            <h2 class="text-2xl font-bold mb-2">PUBLIC PORTAL</h2>
-            <p class="text-blue-200">대국민 서비스</p>
-        </a>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col items-center justify-center px-8 py-12">
+        <!-- Title -->
+        <div class="text-center mb-12">
+            <h1 class="text-display font-bold text-navy mb-3">특용작물 대사체 통합 디지털 플랫폼</h1>
+            <p class="text-body-lg text-gray-500">특용작물 대사체 통합 데이터 생산·표준화 및 디지털 활용기술 개발</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="flex gap-6 mb-14">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-10 py-8 text-center hover:shadow-md hover:border-accent/30 transition-all group">
+                <p class="text-5xl font-bold text-accent group-hover:scale-105 transition-transform">80종</p>
+                <p class="text-base text-gray-500 mt-3">특용작물 대사체 DB 구축 목표</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-10 py-8 text-center hover:shadow-md hover:border-accent/30 transition-all group">
+                <p class="text-5xl font-bold text-accent group-hover:scale-105 transition-transform">50종</p>
+                <p class="text-base text-gray-500 mt-3">신규 대사체 데이터 생산</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-10 py-8 text-center hover:shadow-md hover:border-accent/30 transition-all group">
+                <p class="text-5xl font-bold text-accent group-hover:scale-105 transition-transform">2-Track</p>
+                <p class="text-base text-gray-500 mt-3">연구자/대국민 서비스 분리</p>
+            </div>
+        </div>
+
+        <!-- 2-Track Selection Cards -->
+        <div class="flex gap-8">
+            <a href="{% url 'research_index' %}"
+               class="group block bg-navy text-white rounded-2xl p-10 text-center hover:bg-navy-light transition-all w-96 min-h-[200px] flex flex-col items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition">
+                    <svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <h2 class="text-heading font-bold mb-2">RESEARCH PORTAL</h2>
+                <p class="text-gray-300 text-base">연구자용 서비스</p>
+                <p class="text-xs text-gray-400 mt-3">데이터 탐색 · 분석 · 표준화 패키지</p>
+            </a>
+            <a href="{% url 'public_index' %}"
+               class="group block bg-accent text-white rounded-2xl p-10 text-center hover:bg-accent-light transition-all w-96 min-h-[200px] flex flex-col items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition">
+                    <svg class="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h2 class="text-heading font-bold mb-2">PUBLIC PORTAL</h2>
+                <p class="text-blue-200 text-base">대국민 서비스</p>
+                <p class="text-xs text-blue-200/70 mt-3">성분 비교 · AI 해설 · 리포트</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-white border-t border-gray-200 py-4 px-6 text-center shrink-0">
+        <p class="text-xs text-gray-400">
+            특용작물 대사체 통합 데이터 생산·표준화 및 디지털 활용기술 개발 &middot; 프로토타입 데모
+        </p>
     </div>
 </div>
 {% endblock %}

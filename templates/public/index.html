@@ -1,19 +1,218 @@
 {% extends "base.html" %}
+{% block title %}PUBLIC PORTAL — 대국민 서비스{% endblock %}
+
 {% block content %}
-<!-- TODO: Claude Code에서 DEVELOPMENT_GUIDE.md 섹션 6-4 참고하여 구현 -->
-<header class="bg-navy text-white h-16 flex items-center px-6 justify-between">
+<!-- ===== NAVY HEADER ===== -->
+<header class="bg-navy text-white h-16 flex items-center px-6 justify-between shrink-0">
     <div class="flex items-center gap-4">
         <h1 class="text-xl font-bold">PUBLIC PORTAL</h1>
         <span class="text-sm text-gray-300">대국민 서비스</span>
     </div>
+    <input type="text" placeholder="특용작물 성분 검색"
+           class="bg-navy-light text-white placeholder-gray-400 px-4 py-2 rounded-lg w-96 border border-gray-600 focus:border-blue-400 focus:outline-none text-sm">
     <div class="flex gap-2">
-        <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm">2-TRACK: PUBLIC</span>
+        <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium">2-TRACK: PUBLIC</span>
         <span class="border border-gray-400 text-gray-300 px-3 py-1 rounded text-sm">RELEASE V1.0</span>
     </div>
 </header>
-<div class="p-8">
-    <p class="text-lg">Public Portal 메인 — Claude Code에서 구현 예정</p>
-    <a href="{% url 'public_dashboard' %}" class="mt-4 inline-block bg-accent text-white px-6 py-3 rounded-lg text-lg">작목 상세 대시보드 →</a>
-    <a href="{% url 'landing' %}" class="mt-4 inline-block text-accent underline ml-4">← 메인으로</a>
+
+<!-- ===== BREADCRUMB ===== -->
+<div class="text-sm text-gray-500 px-6 py-2 border-b bg-white flex items-center gap-2">
+    <a href="{% url 'landing' %}" class="hover:text-accent transition">HOME</a>
+    <span class="text-gray-300">&gt;</span>
+    <span class="text-gray-800 font-medium">PUBLIC PORTAL</span>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="max-w-6xl mx-auto px-6 py-10">
+
+    <!-- Hero Section -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-3">
+            <h2 class="text-3xl font-bold text-navy">대국민 서비스</h2>
+            <span class="bg-yellow-100 text-yellow-800 border border-yellow-200 px-3 py-1 rounded-full text-sm font-semibold">50종 DB 구축</span>
+            <span class="bg-green-100 text-green-700 border border-green-200 px-3 py-1 rounded-full text-sm font-semibold">80종 확장 목표</span>
+        </div>
+        <p class="text-lg text-gray-500">소비자, 농업인, 지자체를 위한 특용작물 대사체 정보 서비스</p>
+    </div>
+
+    <!-- Target Audience Cards -->
+    <div class="grid grid-cols-3 gap-4 mb-10">
+        <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <h4 class="font-bold text-navy mb-1">소비자</h4>
+            <p class="text-xs text-gray-500">성분 기반 품질 정보 확인<br>원산지 신뢰도 조회</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                </svg>
+            </div>
+            <h4 class="font-bold text-navy mb-1">농업인</h4>
+            <p class="text-xs text-gray-500">재배 환경 기반 분석<br>수확 적기·품질 참고</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+            <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+            <h4 class="font-bold text-navy mb-1">지자체·정책</h4>
+            <p class="text-xs text-gray-500">지역별 지표 요약<br>정책용 보고자료 활용</p>
+        </div>
+    </div>
+
+    <!-- Feature Cards (계획서 표-5 기반) -->
+    <h3 class="text-xl font-bold text-navy mb-5">주요 기능</h3>
+    <div class="grid grid-cols-2 gap-6">
+
+        <!-- 1. 작목 상세 대시보드 (Active) -->
+        <a href="{% url 'public_dashboard' %}"
+           class="group bg-white rounded-xl border border-gray-200 p-6 hover:border-accent hover:shadow-lg transition-all">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition">
+                    <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-lg font-bold text-navy group-hover:text-accent transition">작목 상세 대시보드</h4>
+                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold">ACTIVE</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">탐색 및 비교</p>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        작물별 성분 분포 확인 및 비교 분석.
+                        공공 API 연계 지역·환경 지표와 AI 기반 해설 제공.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center text-sm text-accent font-medium">
+                대시보드 바로가기
+                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </a>
+
+        <!-- 2. 성분 기반 원산지·진위성 신뢰지수 -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 opacity-80">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-lg font-bold text-navy">성분 기반 원산지·진위성 신뢰지수</h4>
+                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px] font-bold">개발 예정</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">소비자용</p>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        내가 산 특용작물 성분카드(QR 연동).
+                        가공·조리·건조 방식에 따른 성분 변화 가이드.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center text-sm text-gray-400 font-medium">
+                개발 예정
+            </div>
+        </div>
+
+        <!-- 3. 특용작물 성분 백과 -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 opacity-80">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-lg font-bold text-navy">특용작물 성분 백과</h4>
+                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px] font-bold">개발 예정</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">쉬운 언어</p>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        대중이 이해하기 쉬운 용어로 풀어낸 특용작물 핵심 성분 해설.
+                        효능 정보 및 섭취 가이드 제공.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center text-sm text-gray-400 font-medium">
+                개발 예정
+            </div>
+        </div>
+
+        <!-- 4. 지역별 성분 지도 -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 opacity-80">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-lg font-bold text-navy">지역별 성분 지도</h4>
+                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[10px] font-bold">개발 예정</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">메타볼로믹스 지리정보</p>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        지역별 성분 분포 지도(메타볼로믹스 지리정보).
+                        농업인/지자체 대상 재배 환경 해석 제공.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center text-sm text-gray-400 font-medium">
+                개발 예정
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Public Content (표-5 기반 추가 콘텐츠 목록) -->
+    <div class="mt-10 bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-base font-bold text-navy mb-4">대국민 서비스 콘텐츠 (계획서 표-5)</h3>
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">소비자</p>
+                <p class="text-sm text-gray-600">성분 기반 원산지·진위성 신뢰지수</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">소비자</p>
+                <p class="text-sm text-gray-600">내가 산 특용작물 성분카드(QR 연동)</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">소비자</p>
+                <p class="text-sm text-gray-600">가공·조리·건조 방식에 따른 성분 변화 가이드</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">농업인</p>
+                <p class="text-sm text-gray-600">수확 적기·품질 등급 예측(간편 진단)</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">농업인/지자체</p>
+                <p class="text-sm text-gray-600">지역별 성분 지도(메타볼로믹스 지리정보)</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg px-4 py-3">
+                <p class="text-xs text-gray-400 mb-1">일반</p>
+                <p class="text-sm text-gray-600">특용작물 성분 백과(쉬운 언어)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back link -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'landing' %}" class="text-sm text-gray-400 hover:text-accent transition">
+            &larr; 메인으로 돌아가기
+        </a>
+    </div>
 </div>
 {% endblock %}

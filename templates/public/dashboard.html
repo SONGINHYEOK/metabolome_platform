@@ -1,65 +1,448 @@
 {% extends "base.html" %}
+{% block title %}작목 상세 대시보드 — PUBLIC PORTAL{% endblock %}
+
 {% block content %}
-<!-- TODO: Claude Code에서 DEVELOPMENT_GUIDE.md 섹션 6-5 참고하여 구현 -->
-<!-- ★ 레퍼런스 이미지 KakaoTalk_Photo_002 기반 3-컬럼 레이아웃 ★ -->
-<header class="bg-navy text-white h-16 flex items-center px-6 justify-between">
+<!-- ===== NAVY HEADER ===== -->
+<header class="bg-navy text-white h-16 flex items-center px-6 justify-between shrink-0">
     <div class="flex items-center gap-4">
-        <h1 class="text-xl font-bold">PUBLIC PORTAL</h1>
+        <a href="{% url 'public_index' %}" class="text-xl font-bold hover:text-blue-300 transition">PUBLIC PORTAL</a>
         <span class="text-sm text-gray-300">대국민 서비스</span>
     </div>
-    <input type="text" placeholder="특용작물 DB 기반 탐색" class="bg-navy-light text-white px-4 py-2 rounded-lg w-96 border border-gray-600">
-    <div class="flex gap-2">
-        <span class="bg-yellow-500 text-black px-3 py-1 rounded text-sm font-medium">50종 DB 구축 · 80종 확장</span>
-        <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm">2-TRACK: PUBLIC</span>
+    <input type="text" placeholder="특용작물 DB 기반 탐색"
+           class="bg-navy-light text-white placeholder-gray-400 px-4 py-2 rounded-lg w-96 border border-gray-600 focus:border-blue-400 focus:outline-none text-sm">
+    <div class="flex items-center gap-2">
+        <span class="bg-yellow-500 text-black px-3 py-1 rounded text-xs font-bold">50종 DB 구축 · 80종 확장</span>
+        <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium">2-TRACK: PUBLIC</span>
         <span class="border border-gray-400 text-gray-300 px-3 py-1 rounded text-sm">RELEASE V1.0</span>
     </div>
 </header>
 
-<div class="text-sm text-gray-500 px-6 py-2 border-b">
-    <a href="{% url 'landing' %}">HOME</a> &gt;
-    <a href="{% url 'public_index' %}">PUBLIC TRACK</a> &gt;
-    <span class="text-gray-800">DASHBOARD</span>
+<!-- ===== BREADCRUMB ===== -->
+<div class="text-sm text-gray-500 px-6 py-2 border-b bg-white flex items-center gap-2 shrink-0">
+    <a href="{% url 'landing' %}" class="hover:text-accent transition">HOME</a>
+    <span class="text-gray-300">&gt;</span>
+    <a href="{% url 'public_index' %}" class="hover:text-accent transition">PUBLIC TRACK</a>
+    <span class="text-gray-300">&gt;</span>
+    <span class="text-gray-800 font-medium">DASHBOARD</span>
 </div>
 
-<div class="flex h-[calc(100vh-120px)]">
-    <!-- 좌측: 탐색 및 비교 -->
-    <aside class="w-64 border-r bg-white p-4 overflow-y-auto">
-        <h3 class="text-lg font-semibold mb-4">탐색 및 비교</h3>
-        <p class="text-sm text-gray-500">Claude Code에서 비교 UI 구현</p>
+<!-- ===== 3-COLUMN LAYOUT ===== -->
+<div class="flex h-[calc(100vh-112px)]">
+
+    <!-- ========== LEFT: EXPLORATION & COMPARISON ========== -->
+    <aside class="w-64 border-r bg-white overflow-y-auto shrink-0">
+        <!-- Tabs -->
+        <div class="flex border-b text-sm">
+            <button class="flex-1 py-3 text-center font-semibold text-accent border-b-2 border-accent">작목</button>
+            <button class="flex-1 py-3 text-center text-gray-400" disabled>성분</button>
+            <button class="flex-1 py-3 text-center text-gray-400" disabled>지역</button>
+        </div>
+
+        <div class="p-5">
+            <h3 class="text-base font-bold text-navy mb-0.5">탐색 및 비교</h3>
+            <p class="text-[11px] text-gray-400 tracking-wider mb-5">EXPLORATION & COMPARISON</p>
+
+            <form method="get" id="dashboardForm">
+                <!-- Crop A -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">작목 선택</label>
+                    <select name="crop_a"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-accent focus:ring-1 focus:ring-accent/20 focus:outline-none">
+                        {% for c in crops %}
+                        <option value="{{ c }}" {% if c == current_crop_a %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Compound (Display only) -->
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5 tracking-wide">성분 선택</label>
+                    <select class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-gray-400" disabled>
+                        <option>전체 (All)</option>
+                    </select>
+                </div>
+
+                <!-- Comparison Target -->
+                <div class="mb-5">
+                    <p class="text-[10px] text-gray-400 tracking-wider mb-3">비교 타겟 (P1)</p>
+
+                    <!-- TARGET A -->
+                    <div class="bg-gray-50 rounded-lg p-3 mb-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] text-gray-400">TARGET A</p>
+                                <p class="text-sm font-semibold text-navy">
+                                    {% if crop_a %}{{ crop_a.name_ko }} ({{ crop_a.plant_part }}){% else %}-{% endif %}
+                                </p>
+                            </div>
+                            {% if crop_a %}
+                            <span class="bg-accent/10 text-accent px-2 py-0.5 rounded text-[10px] font-bold">{{ crop_a.plant_part|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Swap Icon -->
+                    <div class="text-center text-gray-300 text-lg my-1">&#8693;</div>
+
+                    <!-- TARGET B -->
+                    <div class="bg-gray-50 rounded-lg p-3 mb-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] text-gray-400">TARGET B</p>
+                                <select name="crop_b"
+                                        class="text-sm font-semibold text-navy bg-transparent border-none p-0 focus:outline-none focus:ring-0 w-full">
+                                    {% for c in crops %}
+                                    <option value="{{ c }}" {% if c == current_crop_b %}selected{% endif %}>{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if crop_b %}
+                            <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ crop_b.plant_part|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-navy text-white py-3 rounded-lg text-sm font-bold hover:bg-navy-light transition">
+                    비교 분석 적용
+                </button>
+            </form>
+        </div>
     </aside>
 
-    <!-- 중앙: 대시보드 -->
-    <main class="flex-1 p-6 overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-2">작목 상세 대시보드</h2>
-        <p class="text-gray-500 mb-6">{{ current_crop_a }} vs {{ current_crop_b }} 분석 데이터 및 공공 API 연계 지표</p>
+    <!-- ========== CENTER: DASHBOARD ========== -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="p-6">
+            <!-- Dashboard Title -->
+            <div class="flex items-center gap-3 mb-1">
+                <h2 class="text-2xl font-bold text-navy">작목 상세 대시보드</h2>
+                <span class="bg-navy/10 text-navy px-2.5 py-0.5 rounded text-xs font-bold">N=1,240</span>
+            </div>
+            <p class="text-sm text-gray-500 mb-6">
+                {{ current_crop_a }} vs {{ current_crop_b }} 분석 데이터 및 공공 API 연계 지표
+            </p>
 
-        {% if env_data %}
-        <div class="grid grid-cols-3 gap-4 mb-8">
-            <div class="bg-white border rounded-lg p-6 text-center">
-                <p class="text-sm text-gray-500">연평균 기온</p>
-                <p class="text-4xl font-bold text-navy">{{ env_data.avg_temperature }} °C</p>
-                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+            <!-- ===== Environment Indicators ===== -->
+            {% if env_data %}
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-sm font-semibold text-navy">지역·환경 지표</span>
+                    <span class="text-xs text-gray-400">{{ env_data.region }}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+                        <p class="text-xs text-gray-400 mb-1">연평균 기온</p>
+                        <p class="text-4xl font-bold text-navy">{{ env_data.avg_temperature }}<span class="text-lg text-gray-400 font-normal ml-1">°C</span></p>
+                        <span class="inline-block mt-2 bg-blue-50 text-blue-500 px-2 py-0.5 rounded text-[10px] font-medium">API 기반</span>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+                        <p class="text-xs text-gray-400 mb-1">연평균 강수량</p>
+                        <p class="text-4xl font-bold text-navy">{{ env_data.avg_rainfall|floatformat:0 }}<span class="text-lg text-gray-400 font-normal ml-1">mm</span></p>
+                        <span class="inline-block mt-2 bg-blue-50 text-blue-500 px-2 py-0.5 rounded text-[10px] font-medium">API 기반</span>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+                        <p class="text-xs text-gray-400 mb-1">토양질 지수</p>
+                        <p class="text-4xl font-bold text-navy">{{ env_data.soil_grade }}<span class="text-lg text-gray-400 font-normal ml-1">등급</span></p>
+                        <span class="inline-block mt-2 bg-blue-50 text-blue-500 px-2 py-0.5 rounded text-[10px] font-medium">API 기반</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white border rounded-lg p-6 text-center">
-                <p class="text-sm text-gray-500">연평균 강수량</p>
-                <p class="text-4xl font-bold text-navy">{{ env_data.avg_rainfall }} mm</p>
-                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+            {% endif %}
+
+            <!-- ===== Charts Section ===== -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <!-- Distribution Chart -->
+                <div class="bg-white rounded-xl border border-gray-200 p-5">
+                    <h3 class="text-sm font-bold text-navy mb-1">성분 분포 요약</h3>
+                    <p class="text-xs text-gray-400 mb-4">{{ current_crop_a }} 주요 성분 Score 분포</p>
+                    <div class="h-56">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+                <!-- Comparison Chart -->
+                <div class="bg-white rounded-xl border border-gray-200 p-5">
+                    <h3 class="text-sm font-bold text-navy mb-1">비교 결과 분석</h3>
+                    <p class="text-xs text-gray-400 mb-4">{{ current_crop_a }} vs {{ current_crop_b }} 성분별 비교</p>
+                    <div class="h-56">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white border rounded-lg p-6 text-center">
-                <p class="text-sm text-gray-500">토양질 지수</p>
-                <p class="text-4xl font-bold text-navy">{{ env_data.soil_grade }}등급</p>
-                <p class="text-xs text-gray-400 mt-1">API 기반</p>
+
+            <!-- ===== Public Output Preview (P4 CARD) ===== -->
+            <div class="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+                <h3 class="text-sm font-bold text-navy mb-4">대국민 산출물 미리보기 <span class="text-[10px] text-gray-400 font-normal tracking-wider">P4 CARD</span></h3>
+                <div class="flex gap-5">
+                    <!-- Image Placeholder -->
+                    <div class="w-40 h-40 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex flex-col items-center justify-center shrink-0 border border-green-200">
+                        <svg class="w-10 h-10 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+                        </svg>
+                        <span class="text-[10px] text-green-500 font-medium">{{ current_crop_a }} 이미지</span>
+                    </div>
+                    <!-- Card Content -->
+                    <div class="flex-1">
+                        <h4 class="text-base font-bold text-navy mb-2">{{ current_crop_a }} 핵심 성분 요약 카드</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">
+                            대중이 이해하기 쉬운 용어로 풀어낸 {{ current_crop_a }} 핵심 성분 분석 및 효능 정보 카드입니다.
+                            주요 지표성분의 함량 및 품질 등급을 한눈에 확인할 수 있습니다.
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <a href="#" class="text-sm text-accent font-medium hover:underline">더보기 &rarr;</a>
+                            <button class="text-gray-400 hover:text-gray-600 transition" disabled title="개발 예정">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Output Downloads (Bottom Bar) ===== -->
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-500 tracking-wider">카드 및 리포트</span>
+                        <span class="text-[10px] text-gray-400 tracking-wider">OUTPUT DOWNLOADS</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5" disabled>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            요약 카드
+                        </button>
+                        <button class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5" disabled>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                            비교 카드
+                        </button>
+                        <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                        <button class="bg-navy/5 hover:bg-navy/10 text-navy px-3 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5" disabled>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            대중용 요약 카드 저장
+                        </button>
+                        <button class="bg-navy/5 hover:bg-navy/10 text-navy px-3 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5" disabled>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            대중용 리포트(PDF)
+                        </button>
+                        <button class="bg-navy/5 hover:bg-navy/10 text-navy px-3 py-2 rounded-lg text-xs font-medium transition flex items-center gap-1.5" disabled>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            정책용 요약 리포트(PDF)
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-        {% endif %}
-
-        <p class="text-gray-400">차트 및 카드 영역 — Claude Code에서 구현</p>
     </main>
 
-    <!-- 우측: AI 해설 -->
-    <aside class="w-96 border-l bg-white p-4 overflow-y-auto">
-        <h3 class="text-xl font-bold mb-4">AI 요약·비교·해설</h3>
-        <p class="text-sm text-gray-500">Claude Code에서 AI 해설 패널 구현</p>
+    <!-- ========== RIGHT: AI SUMMARY PANEL ========== -->
+    <aside class="w-96 border-l bg-white overflow-y-auto shrink-0">
+        <!-- Panel Header -->
+        <div class="p-5 border-b bg-gray-50">
+            <h3 class="text-base font-bold text-navy mb-1">AI 요약·비교·해설</h3>
+            <span class="bg-accent/10 text-accent px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide">대국민 AI 콘텐츠 (근거 포함)</span>
+        </div>
+
+        <div class="p-5">
+            <!-- AI Commentary -->
+            <div class="mb-5">
+                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">AI 해설 콘텐츠</h4>
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        {{ current_crop_a }}은(는) {{ current_crop_b }} 대비
+                        {% if current_crop_a == '인삼' %}사포닌(Rg1) 1.2배 높음{% else %}주요 지표성분 함량이 상이함{% endif %}.
+                        지역 기후가 성분 축적에 기여하며, 산지별 성분 편차가 확인됩니다.
+                    </p>
+                    <a href="#" class="text-xs text-accent font-medium mt-2 inline-block hover:underline">더보기 &rarr;</a>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 -mx-5">
+
+            <!-- Usage Scenarios -->
+            <div class="my-5">
+                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용 시나리오</h4>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                        <span class="text-lg shrink-0">&#127963;</span>
+                        <div>
+                            <p class="text-sm font-semibold text-navy">정책</p>
+                            <p class="text-xs text-gray-500">지역별 지표 요약, 정책용 보고자료</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                        <span class="text-lg shrink-0">&#127981;</span>
+                        <div>
+                            <p class="text-sm font-semibold text-navy">산업</p>
+                            <p class="text-xs text-gray-500">후보 성분 비교, R&D 의사결정 참고</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                        <span class="text-lg shrink-0">&#127806;</span>
+                        <div>
+                            <p class="text-sm font-semibold text-navy">농업인</p>
+                            <p class="text-xs text-gray-500">재배 환경 이해, 현장 의사결정 보조</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 -mx-5">
+
+            <!-- Application Models -->
+            <div class="my-5">
+                <h4 class="text-xs font-bold text-gray-500 tracking-wider mb-3">활용모델 (현장 활용)</h4>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                        원산지 확인 및 위변조 이해
+                    </div>
+                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                        성분 기반 품질 선택 가이드
+                    </div>
+                    <div class="flex items-center gap-2.5 text-sm text-gray-600">
+                        <span class="w-1.5 h-1.5 bg-accent rounded-full shrink-0"></span>
+                        환경 기반 해석 (공공 API)
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 -mx-5">
+
+            <!-- Uncertainty Notice -->
+            <div class="my-5">
+                <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-4">
+                    <div class="flex items-start gap-2">
+                        <span class="text-yellow-500 shrink-0 mt-0.5">&#9432;</span>
+                        <div>
+                            <p class="text-xs font-semibold text-yellow-800 mb-1">불확실성 및 해상도 안내</p>
+                            <p class="text-xs text-yellow-700 leading-relaxed">
+                                분석 결과는 표본 및 해상도에 따라 차이가 있을 수 있음.
+                                본 데이터는 연구용 참고자료이며, 의학적 판단의 근거로 사용할 수 없습니다.
+                            </p>
+                            <a href="#" class="text-[10px] text-yellow-600 font-medium mt-1 inline-block hover:underline">상세 &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </aside>
+
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* ========== Chart.js: Distribution Chart ========== */
+(function() {
+    var compoundsA = {{ compounds_a_json|safe }};
+    var compoundsB = {{ compounds_b_json|safe }};
+
+    // Distribution Chart (Crop A)
+    var distCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distCtx, {
+        type: 'bar',
+        data: {
+            labels: compoundsA.map(function(c) {
+                var name = c.name;
+                return name.length > 15 ? name.substring(0, 13) + '..' : name;
+            }),
+            datasets: [{
+                label: '{{ current_crop_a }}',
+                data: compoundsA.map(function(c) { return c.score; }),
+                backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 4,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { font: { size: 11 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 10 }, maxRotation: 45 }
+                }
+            }
+        }
+    });
+
+    // Comparison Chart (A vs B)
+    var allNames = [];
+    var mapA = {};
+    var mapB = {};
+    compoundsA.forEach(function(c) { mapA[c.name] = c.score; if (allNames.indexOf(c.name) === -1) allNames.push(c.name); });
+    compoundsB.forEach(function(c) { mapB[c.name] = c.score; if (allNames.indexOf(c.name) === -1) allNames.push(c.name); });
+
+    var compCtx = document.getElementById('comparisonChart').getContext('2d');
+    new Chart(compCtx, {
+        type: 'bar',
+        data: {
+            labels: allNames.map(function(n) { return n.length > 12 ? n.substring(0, 10) + '..' : n; }),
+            datasets: [
+                {
+                    label: '{{ current_crop_a }}',
+                    data: allNames.map(function(n) { return mapA[n] || 0; }),
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: '{{ current_crop_b }}',
+                    data: allNames.map(function(n) { return mapB[n] || 0; }),
+                    backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                    borderColor: 'rgba(249, 115, 22, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { font: { size: 11 }, boxWidth: 12, padding: 10 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { font: { size: 11 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 9 }, maxRotation: 45 }
+                }
+            }
+        }
+    });
+})();
+</script>
 {% endblock %}
